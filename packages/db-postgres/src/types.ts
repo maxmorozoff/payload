@@ -21,6 +21,7 @@ export type DrizzleDB = NodePgDatabase<Record<string, unknown>>
 export type Args = {
   localesSuffix?: string
   logger?: DrizzleConfig['logger']
+  maxIdentifierLength?: number
   migrationDir?: string
   pool: PoolConfig
   push?: boolean
@@ -68,6 +69,7 @@ export type PostgresAdapter = BaseDatabaseAdapter & {
   fieldConstraints: Record<string, Record<string, string>>
   localesSuffix?: string
   logger: DrizzleConfig['logger']
+  maxIdentifierLength: number
   pool: Pool
   poolOptions: Args['pool']
   push: boolean
@@ -104,6 +106,7 @@ declare module 'payload' {
     enums: Record<string, GenericEnum>
     fieldConstraints: Record<string, Record<string, string>>
     localeSuffix?: string
+    maxIdentifierLength: number
     pool: Pool
     push: boolean
     relations: Record<string, GenericRelation>
