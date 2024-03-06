@@ -1,6 +1,7 @@
 import payload from '../../packages/payload/src'
 import { devUser } from '../credentials'
 import { initPayloadTest } from '../helpers/configHelpers'
+import { pagesSlug } from './collections/Pages'
 import { postsSlug } from './collections/Posts'
 
 require('isomorphic-fetch')
@@ -44,29 +45,25 @@ describe('_Community Tests', () => {
   // use the tests below as a guide
   // --__--__--__--__--__--__--__--__--__
 
-  it('local API example', async () => {
-    const newPost = await payload.create({
+  it('should populate breadcrumbs from external parent collection', async () => {
+    const nestedPost = await payload.find({
       collection: postsSlug,
-      data: {
-        text: 'LOCAL API EXAMPLE',
+      where: {
+        slug: { equals: 'example-nested-post' },
       },
     })
 
-    expect(newPost.text).toEqual('LOCAL API EXAMPLE')
+    expect(nestedPost.docs[0]?.breadcrumbs).toHaveLength(2) // fails
   })
 
-  it('rest API example', async () => {
-    const newPost = await fetch(`${apiUrl}/${postsSlug}`, {
-      method: 'POST',
-      headers: {
-        ...headers,
-        Authorization: `JWT ${jwt}`,
+  it('should populate breadcrumbs from the same parent collection', async () => {
+    const nestedPage = await payload.find({
+      collection: pagesSlug,
+      where: {
+        slug: { equals: 'example-nested-page' },
       },
-      body: JSON.stringify({
-        text: 'REST API EXAMPLE',
-      }),
-    }).then((res) => res.json())
+    })
 
-    expect(newPost.doc.text).toEqual('REST API EXAMPLE')
+    expect(nestedPage.docs[0]?.breadcrumbs).toHaveLength(2) // passes
   })
 })

@@ -1,23 +1,23 @@
 import { buildConfigWithDefaults } from '../buildConfigWithDefaults'
 import { devUser } from '../credentials'
-import { MediaCollection } from './collections/Media'
 import { PostsCollection, postsSlug } from './collections/Posts'
-import { MenuGlobal } from './globals/Menu'
+import { PagesCollection, pagesSlug } from './collections/Pages'
+import type { Post, Page } from './payload-types'
+
+import nestedDocs from '../../packages/plugin-nested-docs/src'
 
 export default buildConfigWithDefaults({
-  // ...extend config here
-  collections: [
-    PostsCollection,
-    MediaCollection,
-    // ...add more collections here
-  ],
-  globals: [
-    MenuGlobal,
-    // ...add more globals here
-  ],
+  collections: [PagesCollection, PostsCollection],
   graphQL: {
     schemaOutputFile: './test/_community/schema.graphql',
   },
+  plugins: [
+    nestedDocs({
+      collections: [pagesSlug, postsSlug],
+      generateLabel: (_, doc) => doc.slug as string,
+      generateURL: (docs) => docs.reduce((url, doc) => `${url}/${doc.slug}`, ''),
+    }),
+  ],
 
   onInit: async (payload) => {
     await payload.create({
@@ -28,11 +28,27 @@ export default buildConfigWithDefaults({
       },
     })
 
+    const page = await payload.create({
+      collection: pagesSlug,
+      data: {
+        slug: 'example-page',
+      },
+    })
+
+    await payload.create({
+      collection: pagesSlug,
+      data: {
+        slug: 'example-nested-page',
+        parent: page.id.toString(),
+      } satisfies Partial<Page>,
+    })
+
     await payload.create({
       collection: postsSlug,
       data: {
-        text: 'example post',
-      },
+        slug: 'example-nested-post',
+        parent: page.id.toString(),
+      } satisfies Partial<Post>,
     })
   },
 })

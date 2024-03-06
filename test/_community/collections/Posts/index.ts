@@ -1,23 +1,17 @@
 import type { CollectionConfig } from '../../../../packages/payload/src/collections/config/types'
+import createParentField from '../../../../packages/plugin-nested-docs/src/fields/parent'
 
-import { mediaSlug } from '../Media'
+import { pagesSlug } from '../Pages'
 
 export const postsSlug = 'posts'
 
 export const PostsCollection: CollectionConfig = {
   fields: [
+    // Creates a parent field with a relationship to Pages
+    createParentField(pagesSlug),
     {
-      name: 'text',
+      name: 'slug',
       type: 'text',
-    },
-    {
-      name: 'associatedMedia',
-      access: {
-        create: () => true,
-        update: () => false,
-      },
-      relationTo: mediaSlug,
-      type: 'upload',
     },
   ],
   slug: postsSlug,
