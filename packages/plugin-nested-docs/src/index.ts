@@ -45,6 +45,11 @@ const nestedDocs =
           fields.push(createBreadcrumbsField(collection.slug))
         }
 
+        const parentCollection =
+          (existingParentField &&
+            config.collections.find((c) => c.slug === existingParentField?.relationTo)) ||
+          collection
+
         return {
           ...collection,
           fields,
@@ -57,7 +62,7 @@ const nestedDocs =
             ],
             beforeChange: [
               async ({ data, originalDoc, req }) =>
-                populateBreadcrumbs(req, pluginConfig, collection, data, originalDoc),
+                populateBreadcrumbs(req, pluginConfig, parentCollection, data, originalDoc),
               ...(collection?.hooks?.beforeChange || []),
             ],
           },
